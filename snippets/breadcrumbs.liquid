@@ -1,0 +1,66 @@
+{% unless template == 'index' or template == 'cart' or template == 'list-collections' %}
+  {% if template contains 'product' %}
+    {% assign product_collections = product.collections %}
+    {% assign tea_collections = 'Green Tea,White Tea,Oolong Tea,Black Tea,Herbal Tea,Steepware®,Tea Gifts & Collections' | split: ',' %}
+
+    {% if product_collections.size > 0 %}
+      {% for collection in product_collections %}
+        {% if tea_collections contains collection.title %}
+          {% assign collection_title = collection.title %}
+          {% assign collection_url = collection.url %}
+          {% break %}
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      {% assign collection_title = 'unknown collection' %}
+      <script>
+        console.log("Product '{{ product.title }}' does not belong to a collection.");
+      </script>
+    {% endif %}
+
+    <nav class="page-width" role="navigation" aria-label="breadcrumbs"  style="padding-top: 10px; padding-bottom: 10px;">
+      <a href="/" style="text-decoration: underline; title="Home">Home</a>
+      {% if collection_title %}
+        <span aria-hidden="true">&rsaquo;</span>
+        {{ collection_title | link_to: collection_url, style: 'text-decoration: underline;' }}
+      {% endif %}
+      <span aria-hidden="true">&rsaquo;</span>
+      <span>{{ product.title }}</span>
+    </nav>
+  {% else %}
+    <nav class="page-width" role="navigation" aria-label="breadcrumbs" style="padding-top: 10px; padding-bottom: 10px;">
+      <a href="/" style="text-decoration: underline; title="Home">Home</a>
+      {% if template contains 'page' %}
+        <span aria-hidden="true">&rsaquo;</span>
+        <span>{{ page.title }}</span>
+      {% elsif template contains 'collection' and collection.handle %}
+        <span aria-hidden="true">&rsaquo;</span>
+        {% if current_tags %}
+          {% capture url %}/collections/{{ collection.handle }}{% endcapture %}
+          {{ collection.title | link_to: url, style: 'text-decoration: underline;' }}
+          <span aria-hidden="true">&rsaquo;</span>
+          <span>{{ current_tags | join: " + " }}</span>
+        {% else %}
+          <span>{{ collection.title }}</span>
+        {% endif %}
+      {% elsif template == 'blog' %}
+        <span aria-hidden="true">&rsaquo;</span>
+        {% if current_tags %}
+          {{ blog.title | link_to: blog.url, style: 'text-decoration: underline;' }}
+          <span aria-hidden="true">&rsaquo;</span>
+          <span>{{ current_tags | join: " + " }}</span>
+        {% else %}
+        <span>{{ blog.title }}</span>
+        {% endif %}
+      {% elsif template == 'article' %}
+        <span aria-hidden="true">&rsaquo;</span>
+        {{ blog.title | link_to: blog.url, style: 'text-decoration: underline;' }}
+        <span aria-hidden="true">&rsaquo;</span>
+        <span>{{ article.title }}</span>
+      {% else %}
+       <span aria-hidden="true">&rsaquo;</span>
+       <span>{{ page_title }}</span>
+      {% endif %}
+    </nav>
+  {% endif %}
+{% endunless %}
